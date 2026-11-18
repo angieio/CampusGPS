@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
@@ -126,10 +127,7 @@ fun PantallaMapa(vm: MapaViewModel) {
                         Text("Buscando ubicación...")
                     }
 
-                    is UbicacionUi.Lista -> {
-                        Text("Latitud: ${actual.posicion.latitud}")
-                        Text("Longitud: ${actual.posicion.longitud}")
-                    }
+                    is UbicacionUi.Lista -> Unit
 
                     is UbicacionUi.Error -> {
                         Surface(
@@ -146,6 +144,14 @@ fun PantallaMapa(vm: MapaViewModel) {
                         }
                     }
                 }
+                ListaLugares(
+                    lugares = lugares,
+                    seleccionado = seleccionado,
+                    onClick = { id -> vm.seleccionar(id) },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(220.dp)
+                )
             }
         }
     }
