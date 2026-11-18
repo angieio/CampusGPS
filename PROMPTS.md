@@ -32,3 +32,14 @@ Primero revisa el proyecto y explícame qué archivos necesitas cambiar. Guarda 
 Conserva los filtros, las coordenadas, el orden de la lista, la selección, los colores de los marcadores y el botón del más cercano. No agregues Context al ViewModel, no calcules distancias en la pantalla y no implementes otras mejoras.
 
 No leas ni muestres mi clave de API, no modifiques local.properties ni hagas commits automáticamente. Comprueba que compile y explícame cómo probar los tres radios, combinarlos con los filtros y cambiar la ubicación.
+
+## Prompt 4: Punto azul nativo (2026-11-18)
+Actúa como un desarrollador Android con experiencia y ayúdame a activar el punto azul nativo y el botón de mi ubicación de Google Maps en CampusGPS. El proyecto usa Kotlin, Jetpack Compose, Material 3 y MVVM + Repository, y las mejoras anteriores están en la rama mejora-ia.
+
+Quiero que el mapa muestre esa función únicamente cuando el usuario haya concedido permiso de ubicación precisa o aproximada. Revisa primero el flujo de permisos y explícame los cambios necesarios. Comprueba el permiso real del sistema, sin asumir que sigue concedido porque existe una ubicación guardada. La comprobación debe actualizarse cuando respondo al diálogo y cuando regreso desde Ajustes.
+
+Si niego o revoco el permiso, la capa de ubicación debe quedar desactivada sin cerrar la app. Conserva el marcador rojo “Estás aquí”, los mensajes de error, filtros, radio, lista, selección y lugar más cercano. No agregues seguimiento en vivo ni permisos de ubicación en segundo plano.
+
+Mantén la comprobación de permisos y el Context en la interfaz; no los lleves al ViewModel. No leas ni muestres mi clave de API, no modifiques local.properties y no agregues otras funciones ni hagas commits automáticamente.
+
+Al terminar, comprueba que compile y dime cómo probar permiso aceptado, permiso denegado y permiso cambiado desde Ajustes.
