@@ -35,6 +35,8 @@ import com.tecsup.campusgps.viewmodel.MapaViewModel
 fun PantallaMapa(vm: MapaViewModel) {
     val estado by vm.estado.collectAsState()
     val contexto = LocalContext.current
+    val lugares by vm.lugares.collectAsState()
+    val seleccionado by vm.seleccionado.collectAsState()
 
     val lanzador = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
@@ -89,44 +91,59 @@ fun PantallaMapa(vm: MapaViewModel) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(padding)
-                .padding(24.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(12.dp)
+                .padding(padding),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Button(
-                onClick = { alPulsar() },
-                enabled = estado !is UbicacionUi.Buscando
+            MapaUbicacion(
+                estado = estado,
+                lugares = lugares,
+                seleccionado = seleccionado,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+            )
+
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                Text("Obtener mi ubicación")
-            }
-
-            when (val actual = estado) {
-                UbicacionUi.Inicial -> {
-                    Text("Pulsa el botón para empezar")
+                Button(
+                    onClick = { alPulsar() },
+                    enabled = estado !is UbicacionUi.Buscando
+                ) {
+                    Text("Obtener mi ubicación")
                 }
 
-                UbicacionUi.Buscando -> {
-                    Text("Buscando ubicación...")
-                }
+                when (val actual = estado) {
+                    UbicacionUi.Inicial -> {
+                        Text("Pulsa el botón para empezar")
+                    }
 
-                is UbicacionUi.Lista -> {
-                    Text("Latitud: ${actual.posicion.latitud}")
-                    Text("Longitud: ${actual.posicion.longitud}")
-                }
+                    UbicacionUi.Buscando -> {
+                        Text("Buscando ubicación...")
+                    }
 
-                is UbicacionUi.Error -> {
-                    Surface(
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(12.dp),
-                        color = MaterialTheme.colorScheme.errorContainer
-                    ) {
-                        Text(
-                            text = actual.mensaje,
-                            modifier = Modifier.padding(16.dp),
-                            color = MaterialTheme.colorScheme.onErrorContainer,
-                            textAlign = TextAlign.Center
-                        )
+                    is UbicacionUi.Lista -> {
+                        Text("Latitud: ${actual.posicion.latitud}")
+                        Text("Longitud: ${actual.posicion.longitud}")
+                    }
+
+                    is UbicacionUi.Error -> {
+                        Surface(
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(12.dp),
+                            color = MaterialTheme.colorScheme.errorContainer
+                        ) {
+                            Text(
+                                text = actual.mensaje,
+                                modifier = Modifier.padding(16.dp),
+                                color = MaterialTheme.colorScheme.onErrorContainer,
+                                textAlign = TextAlign.Center
+                            )
+                        }
                     }
                 }
             }
