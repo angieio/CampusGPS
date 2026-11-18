@@ -30,6 +30,15 @@ class MapaViewModel(
 
     val estado: StateFlow<UbicacionUi> = _estado.asStateFlow()
 
+    private val _categoriaSeleccionada = MutableStateFlow("Todas")
+    val categoriaSeleccionada: StateFlow<String> = _categoriaSeleccionada.asStateFlow()
+
+    private val _lugaresCompletos = MutableStateFlow(
+        lugaresRepo.obtenerLugares().map {
+            LugarConDistancia(it, null)
+        }
+    )
+
     private val _lugares = MutableStateFlow(
         lugaresRepo.obtenerLugares().map {
             LugarConDistancia(it, null)
@@ -47,6 +56,21 @@ class MapaViewModel(
     private val _solicitudSeleccion = MutableStateFlow(0L)
     val solicitudSeleccion: StateFlow<Long> =
         _solicitudSeleccion.asStateFlow()
+
+    fun seleccionarCategoria(categoria: String) {
+        _categoriaSeleccionada.value = categoria
+        val todos = _lugaresCompletos.value
+        val filtrados = when (categoria) {
+            "Todas" -> todos
+            else -> todos.filter { it.lugar.categoria.equals(categoria, ignoreCase = true) }
+        }
+        _lugares.value = filtrados
+
+        val seleccionadoActual = _seleccionado.value
+        if (seleccionadoActual != null && filtrados.none { it.lugar.id == seleccionadoActual }) {
+            _seleccionado.value = null
+        }
+    }
 
     fun buscar() {
         if (!ubicacionRepo.playServicesDisponible()) {
@@ -98,11 +122,23 @@ class MapaViewModel(
             }
             .sortedBy { it.metros }
 
-        _lugares.value = ordenados
+        _lugaresCompletos.value = ordenados
+
+        val cat = _categoriaSeleccionada.value
+        val filtrados = when (cat) {
+            "Todas" -> ordenados
+            else -> ordenados.filter { it.lugar.categoria.equals(cat, ignoreCase = true) }
+        }
+        _lugares.value = filtrados
+
+        val seleccionadoActual = _seleccionado.value
+        if (seleccionadoActual != null && filtrados.none { it.lugar.id == seleccionadoActual }) {
+            _seleccionado.value = null
+        }
 
         Log.d(
             "CampusGPS",
-            ordenados.joinToString("\n") {
+            filtrados.joinToString("\n") {
                 "${it.lugar.nombre}: ${it.metros} m"
             }
         )

@@ -10,8 +10,11 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
@@ -38,6 +41,9 @@ fun PantallaMapa(vm: MapaViewModel) {
     val seleccionado by vm.seleccionado.collectAsState()
     val solicitudSeleccion by vm.solicitudSeleccion.collectAsState()
     val masCercano by vm.masCercano.collectAsState()
+    val categoriaSeleccionada by vm.categoriaSeleccionada.collectAsState()
+
+    val categorias = listOf("Todas", "Estudio", "Comida", "Eventos", "Servicios")
 
     val contexto = LocalContext.current
     val hayError = estado is UbicacionUi.Error
@@ -99,6 +105,21 @@ fun PantallaMapa(vm: MapaViewModel) {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             if (!hayError) {
+                LazyRow(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 4.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    items(categorias) { cat ->
+                        FilterChip(
+                            selected = categoriaSeleccionada == cat,
+                            onClick = { vm.seleccionarCategoria(cat) },
+                            label = { Text(cat) }
+                        )
+                    }
+                }
+
                 MapaUbicacion(
                     estado = estado,
                     lugares = lugares,
