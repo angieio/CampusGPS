@@ -20,6 +20,7 @@ fun MapaUbicacion(
     estado: UbicacionUi,
     lugares: List<LugarConDistancia>,
     seleccionado: Int?,
+    solicitudSeleccion: Long,
     modifier: Modifier = Modifier
 ) {
     val camara = rememberCameraPositionState {
@@ -42,7 +43,7 @@ fun MapaUbicacion(
         }
     }
 
-    LaunchedEffect(seleccionado) {
+    LaunchedEffect(seleccionado, solicitudSeleccion) {
         val lugar = lugares
             .firstOrNull { it.lugar.id == seleccionado }
             ?.lugar
@@ -56,6 +57,11 @@ fun MapaUbicacion(
             )
         }
     }
+
+    val idMasCercano = lugares
+        .firstOrNull { it.metros != null }
+        ?.lugar
+        ?.id
 
     GoogleMap(
         modifier = modifier,
@@ -91,11 +97,15 @@ fun MapaUbicacion(
                     title = lugar.nombre,
                     snippet = lugar.categoria,
                     icon = BitmapDescriptorFactory.defaultMarker(
-                        BitmapDescriptorFactory.HUE_AZURE
+                        if (lugar.id == idMasCercano) {
+                            BitmapDescriptorFactory.HUE_GREEN
+                        } else {
+                            BitmapDescriptorFactory.HUE_AZURE
+                        }
                     )
                 )
 
-                LaunchedEffect(seleccionado) {
+                LaunchedEffect(seleccionado, solicitudSeleccion) {
                     if (seleccionado == lugar.id) {
                         marcador.showInfoWindow()
                     } else {
