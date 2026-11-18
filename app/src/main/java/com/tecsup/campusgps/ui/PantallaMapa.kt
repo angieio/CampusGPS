@@ -10,13 +10,11 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -26,7 +24,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import com.tecsup.campusgps.model.UbicacionUi
@@ -37,11 +34,13 @@ import com.tecsup.campusgps.viewmodel.MapaViewModel
 @Composable
 fun PantallaMapa(vm: MapaViewModel) {
     val estado by vm.estado.collectAsState()
-    val contexto = LocalContext.current
     val lugares by vm.lugares.collectAsState()
     val seleccionado by vm.seleccionado.collectAsState()
     val solicitudSeleccion by vm.solicitudSeleccion.collectAsState()
     val masCercano by vm.masCercano.collectAsState()
+
+    val contexto = LocalContext.current
+    val hayError = estado is UbicacionUi.Error
 
     val lanzador = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
@@ -99,15 +98,17 @@ fun PantallaMapa(vm: MapaViewModel) {
                 .padding(padding),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            MapaUbicacion(
-                estado = estado,
-                lugares = lugares,
-                seleccionado = seleccionado,
-                solicitudSeleccion = solicitudSeleccion,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(1f)
-            )
+            if (!hayError) {
+                MapaUbicacion(
+                    estado = estado,
+                    lugares = lugares,
+                    seleccionado = seleccionado,
+                    solicitudSeleccion = solicitudSeleccion,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f)
+                )
+            }
 
             Column(
                 modifier = Modifier
@@ -123,28 +124,32 @@ fun PantallaMapa(vm: MapaViewModel) {
                     Text("Obtener mi ubicación")
                 }
 
-                OutlinedButton(
-                    onClick = {
-                        masCercano?.let { lugar ->
-                            vm.seleccionar(lugar.id)
+                if (!hayError) {
+                    OutlinedButton(
+                        onClick = {
+                            masCercano?.let { lugar ->
+                                vm.seleccionar(lugar.id)
+                            }
+                        },
+                        enabled = masCercano != null
+                    ) {
+                        Text("Ir al más cercano")
+                    }
+
+                    masCercano?.let { cercano ->
+                        val metros = lugares
+                            .firstOrNull {
+                                it.lugar.id == cercano.id
+                            }
+                            ?.metros
+
+                        if (metros != null) {
+                            Text(
+                                text = "Más cercano: ${cercano.nombre} " +
+                                        "(${formatearDistancia(metros)})",
+                                style = MaterialTheme.typography.bodySmall
+                            )
                         }
-                    },
-                    enabled = masCercano != null
-                ) {
-                    Text("Ir al más cercano")
-                }
-
-                masCercano?.let { cercano ->
-                    val metros = lugares
-                        .firstOrNull { it.lugar.id == cercano.id }
-                        ?.metros
-
-                    if (metros != null) {
-                        Text(
-                            text = "Más cercano: ${cercano.nombre} " +
-                                    "(${formatearDistancia(metros)})",
-                            style = MaterialTheme.typography.bodySmall
-                        )
                     }
                 }
 
@@ -160,28 +165,24 @@ fun PantallaMapa(vm: MapaViewModel) {
                     is UbicacionUi.Lista -> Unit
 
                     is UbicacionUi.Error -> {
-                        Surface(
-                            modifier = Modifier.fillMaxWidth(),
-                            shape = RoundedCornerShape(12.dp),
-                            color = MaterialTheme.colorScheme.errorContainer
-                        ) {
-                            Text(
-                                text = actual.mensaje,
-                                modifier = Modifier.padding(16.dp),
-                                color = MaterialTheme.colorScheme.onErrorContainer,
-                                textAlign = TextAlign.Center
-                            )
-                        }
+                        MensajeError(
+                            error = actual,
+                            onReintentar = { alPulsar() },
+                            modifier = Modifier.fillMaxWidth()
+                        )
                     }
                 }
-                ListaLugares(
-                    lugares = lugares,
-                    seleccionado = seleccionado,
-                    onClick = { id -> vm.seleccionar(id) },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(220.dp)
-                )
+
+                if (!hayError) {
+                    ListaLugares(
+                        lugares = lugares,
+                        seleccionado = seleccionado,
+                        onClick = { id -> vm.seleccionar(id) },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(220.dp)
+                    )
+                }
             }
         }
     }

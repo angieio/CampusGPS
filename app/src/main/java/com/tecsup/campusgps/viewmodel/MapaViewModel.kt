@@ -4,10 +4,12 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.tecsup.campusgps.data.LugaresRepository
+import com.tecsup.campusgps.data.UbicacionNoDisponibleException
 import com.tecsup.campusgps.data.UbicacionRepository
 import com.tecsup.campusgps.model.Lugar
 import com.tecsup.campusgps.model.LugarConDistancia
 import com.tecsup.campusgps.model.Posicion
+import com.tecsup.campusgps.model.TipoError
 import com.tecsup.campusgps.model.UbicacionUi
 import com.tecsup.campusgps.util.distanciaMetros
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -47,6 +49,14 @@ class MapaViewModel(
         _solicitudSeleccion.asStateFlow()
 
     fun buscar() {
+        if (!ubicacionRepo.playServicesDisponible()) {
+            _estado.value = UbicacionUi.Error(
+                mensaje = "Este dispositivo no tiene Google Play Services",
+                tipo = TipoError.SIN_PLAY_SERVICES
+            )
+            return
+        }
+
         _estado.value = UbicacionUi.Buscando
 
         viewModelScope.launch {
@@ -55,8 +65,25 @@ class MapaViewModel(
                     _estado.value = UbicacionUi.Lista(posicion)
                     actualizarDistancias(posicion)
                 }
-                .onFailure {
-                    _estado.value = UbicacionUi.Error(mensajeDe(it))
+                .onFailure { error ->
+                    _estado.value = when (error) {
+                        is SecurityException -> UbicacionUi.Error(
+                            mensaje = "Falta el permiso de ubicación",
+                            tipo = TipoError.SIN_PERMISO
+                        )
+
+                        is UbicacionNoDisponibleException ->
+                            UbicacionUi.Error(
+                                mensaje = "Activa el GPS e intenta de nuevo",
+                                tipo = TipoError.GPS_APAGADO
+                            )
+
+                        else -> UbicacionUi.Error(
+                            mensaje = error.message
+                                ?: "No se pudo obtener la ubicación",
+                            tipo = TipoError.OTRO
+                        )
+                    }
                 }
         }
     }
@@ -83,7 +110,8 @@ class MapaViewModel(
 
     fun permisoDenegado() {
         _estado.value = UbicacionUi.Error(
-            "Sin permiso de ubicación no puedo mostrar dónde estás"
+            mensaje = "Sin permiso de ubicación no puedo mostrar dónde estás",
+            tipo = TipoError.SIN_PERMISO
         )
     }
 
@@ -102,8 +130,4 @@ class MapaViewModel(
             null
         )
 
-    private fun mensajeDe(e: Throwable): String = when (e) {
-        is SecurityException -> "Falta el permiso de ubicación"
-        else -> e.message ?: "No se pudo obtener la ubicación"
-    }
 }
