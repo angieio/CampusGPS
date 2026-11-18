@@ -42,8 +42,10 @@ fun PantallaMapa(vm: MapaViewModel) {
     val solicitudSeleccion by vm.solicitudSeleccion.collectAsState()
     val masCercano by vm.masCercano.collectAsState()
     val categoriaSeleccionada by vm.categoriaSeleccionada.collectAsState()
+    val radioSeleccionado by vm.radioSeleccionado.collectAsState()
 
     val categorias = listOf("Todas", "Estudio", "Comida", "Eventos", "Servicios")
+    val radios = listOf(100f, 200f, 500f)
 
     val contexto = LocalContext.current
     val hayError = estado is UbicacionUi.Error
@@ -108,7 +110,7 @@ fun PantallaMapa(vm: MapaViewModel) {
                 LazyRow(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 4.dp),
+                        .padding(horizontal = 16.dp, vertical = 2.dp),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     items(categorias) { cat ->
@@ -120,11 +122,27 @@ fun PantallaMapa(vm: MapaViewModel) {
                     }
                 }
 
+                LazyRow(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 2.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    items(radios) { r ->
+                        FilterChip(
+                            selected = radioSeleccionado == r,
+                            onClick = { vm.seleccionarRadio(r) },
+                            label = { Text("${r.toInt()}m") }
+                        )
+                    }
+                }
+
                 MapaUbicacion(
                     estado = estado,
                     lugares = lugares,
                     seleccionado = seleccionado,
                     solicitudSeleccion = solicitudSeleccion,
+                    radio = radioSeleccionado,
                     modifier = Modifier
                         .fillMaxWidth()
                         .weight(1f)
@@ -198,6 +216,7 @@ fun PantallaMapa(vm: MapaViewModel) {
                     ListaLugares(
                         lugares = lugares,
                         seleccionado = seleccionado,
+                        radio = radioSeleccionado,
                         onClick = { id -> vm.seleccionar(id) },
                         modifier = Modifier
                             .fillMaxWidth()

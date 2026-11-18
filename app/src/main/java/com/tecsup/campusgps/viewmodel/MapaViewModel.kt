@@ -33,6 +33,9 @@ class MapaViewModel(
     private val _categoriaSeleccionada = MutableStateFlow("Todas")
     val categoriaSeleccionada: StateFlow<String> = _categoriaSeleccionada.asStateFlow()
 
+    private val _radioSeleccionado = MutableStateFlow(100f)
+    val radioSeleccionado: StateFlow<Float> = _radioSeleccionado.asStateFlow()
+
     private val _lugaresCompletos = MutableStateFlow(
         lugaresRepo.obtenerLugares().map {
             LugarConDistancia(it, null)
@@ -70,6 +73,10 @@ class MapaViewModel(
         if (seleccionadoActual != null && filtrados.none { it.lugar.id == seleccionadoActual }) {
             _seleccionado.value = null
         }
+    }
+
+    fun seleccionarRadio(radio: Float) {
+        _radioSeleccionado.value = radio
     }
 
     fun buscar() {

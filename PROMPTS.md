@@ -21,3 +21,14 @@ Revisa primero el código y explícame qué archivos cambiarás. Guarda la categ
 No cambies las coordenadas ni agregues otras funciones. Conserva permisos, errores y navegación del mapa. No agregues Context al ViewModel ni consultas a repositorios desde los composables. No leas ni muestres mi clave de API y no modifiques local.properties.
 
 Comprueba que compile y dime cómo probar cada categoría, volver a Todas y verificar que mapa, lista y lugar más cercano coincidan. No hagas el commit automáticamente.
+
+## Prompt 3: Radio de cercanía (2026-11-18)
+Actúa como un desarrollador Android con experiencia y ayúdame a incorporar un radio de cercanía en CampusGPS. Trabaja sobre lo que ya está implementado en mejora-ia, respetando Kotlin, Jetpack Compose, Material 3 y MVVM + Repository.
+
+Quiero elegir entre 100, 200 y 500 metros. Al obtener mi ubicación, debe aparecer un círculo alrededor de mi posición con el radio seleccionado. En la lista debe distinguirse claramente cuáles lugares están dentro del radio, sin ocultar los que están fuera y sin reemplazar el filtro por categoría.
+
+Primero revisa el proyecto y explícame qué archivos necesitas cambiar. Guarda el radio en el ViewModel y determina allí qué lugares están dentro, aprovechando las distancias que ya calcula la app. Los composables solo deben dibujar el círculo, mostrar los indicadores y comunicar el radio elegido. Antes de obtener ubicación no debe aparecer el círculo.
+
+Conserva los filtros, las coordenadas, el orden de la lista, la selección, los colores de los marcadores y el botón del más cercano. No agregues Context al ViewModel, no calcules distancias en la pantalla y no implementes otras mejoras.
+
+No leas ni muestres mi clave de API, no modifiques local.properties ni hagas commits automáticamente. Comprueba que compile y explícame cómo probar los tres radios, combinarlos con los filtros y cambiar la ubicación.

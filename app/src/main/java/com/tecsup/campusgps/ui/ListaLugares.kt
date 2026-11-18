@@ -28,6 +28,7 @@ import com.tecsup.campusgps.util.formatearDistancia
 fun ListaLugares(
     lugares: List<LugarConDistancia>,
     seleccionado: Int?,
+    radio: Float,
     onClick: (Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -86,11 +87,26 @@ fun ListaLugares(
                             color = MaterialTheme.colorScheme.onSurface
                         )
 
-                        Text(
-                            text = lugar.categoria,
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(6.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = lugar.categoria,
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+
+                            val enRadio = elemento.metros != null && elemento.metros <= radio
+                            if (enRadio) {
+                                Text(
+                                    text = "• Dentro del radio",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    fontWeight = FontWeight.SemiBold,
+                                    color = MaterialTheme.colorScheme.primary
+                                )
+                            }
+                        }
                     }
 
                     Text(
