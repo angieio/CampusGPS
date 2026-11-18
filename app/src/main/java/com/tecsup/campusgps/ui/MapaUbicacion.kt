@@ -25,8 +25,8 @@ fun MapaUbicacion(
 ) {
     val camara = rememberCameraPositionState {
         position = CameraPosition.fromLatLngZoom(
-            LatLng(-12.0464, -77.0428),
-            12f
+            LatLng(-12.0448, -76.9545),
+            15f
         )
     }
 
